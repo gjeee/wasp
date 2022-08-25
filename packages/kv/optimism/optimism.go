@@ -10,10 +10,10 @@ import (
 	"golang.org/x/xerrors"
 )
 
-// OptimisticKVStoreReader implements KVReader interfaces. It wraps any kv.KVStoreReader together with the baseline
+// OptimisticKVStoreReader implements kv.KVReader interfaces. It wraps any kv.KVStoreReader together with the baseline
 // of the state index, which, in turn, is linked to the global state index object.
 // The user of the OptimisticKVStoreReader announces it starts reading the state with SetBaseline. Then the user reads
-// the state with Get's. If sequense of Get's is finished without error, it means state wasn't invalidated from
+// the state with Get's. If sequence of Get's is finished without error, it means state wasn't invalidated from
 // the baseline until the last read.
 // If returned error is ErrorStateInvalidated ir means state was invalidated since SetBaseline.
 // In this case read can be repeated. Any other error is a database error
