@@ -1,4 +1,4 @@
-package kv
+package optimism
 
 import (
 	"github.com/iotaledger/hive.go/kvstore"
@@ -8,16 +8,23 @@ import (
 
 var ErrNotImplementedInHiveOptimisticWrapper = xerrors.New("HiveKVStoreReaderOptimistic does not implement write methods")
 
-// HiveKVStoreReaderOptimistic wraps reading methods of the hive.go V store into optimistic reader checks
+// HiveKVStoreReaderOptimistic wraps reading methods of the hive.go KV store into optimistic reader checks
+// Panic on any write methods and on state invalidated
 type HiveKVStoreReaderOptimistic struct {
 	db       kvstore.KVStore
 	baseline coreutil.StateBaseline
 }
 
-func WrapHiveKVStoreOptimistic(db kvstore.KVStore, baseline coreutil.StateBaseline) kvstore.KVStore {
+func WrapHiveKVStoreReader(db kvstore.KVStore, baseline coreutil.StateBaseline) kvstore.KVStore {
 	return &HiveKVStoreReaderOptimistic{
 		db:       db,
 		baseline: baseline,
+	}
+}
+
+func (h *HiveKVStoreReaderOptimistic) mustValidState() {
+	if !h.baseline.IsValid() {
+		panic(coreutil.ErrorStateInvalidated)
 	}
 }
 
@@ -30,25 +37,17 @@ func (h *HiveKVStoreReaderOptimistic) Realm() kvstore.Realm {
 }
 
 func (h *HiveKVStoreReaderOptimistic) Iterate(prefix kvstore.KeyPrefix, kvConsumerFunc kvstore.IteratorKeyValueConsumerFunc, direction ...kvstore.IterDirection) error {
-	if !h.baseline.IsValid() {
-		return coreutil.ErrorStateInvalidated
-	}
-	err := h.db.Iterate(prefix, kvConsumerFunc, direction...)
-	if !h.baseline.IsValid() {
-		return coreutil.ErrorStateInvalidated
-	}
-	return err
+	h.mustValidState()
+	defer h.mustValidState()
+
+	return h.db.Iterate(prefix, kvConsumerFunc, direction...)
 }
 
 func (h *HiveKVStoreReaderOptimistic) IterateKeys(prefix kvstore.KeyPrefix, consumerFunc kvstore.IteratorKeyConsumerFunc, direction ...kvstore.IterDirection) error {
-	if !h.baseline.IsValid() {
-		return coreutil.ErrorStateInvalidated
-	}
-	err := h.db.IterateKeys(prefix, consumerFunc, direction...)
-	if !h.baseline.IsValid() {
-		return coreutil.ErrorStateInvalidated
-	}
-	return err
+	h.mustValidState()
+	defer h.mustValidState()
+
+	return h.db.IterateKeys(prefix, consumerFunc, direction...)
 }
 
 func (h *HiveKVStoreReaderOptimistic) Clear() error {
@@ -56,14 +55,10 @@ func (h *HiveKVStoreReaderOptimistic) Clear() error {
 }
 
 func (h *HiveKVStoreReaderOptimistic) Get(key kvstore.Key) (value kvstore.Value, err error) {
-	if !h.baseline.IsValid() {
-		return nil, coreutil.ErrorStateInvalidated
-	}
-	ret, err := h.db.Get(key)
-	if !h.baseline.IsValid() {
-		return nil, coreutil.ErrorStateInvalidated
-	}
-	return ret, err
+	h.mustValidState()
+	defer h.mustValidState()
+
+	return h.db.Get(key)
 }
 
 func (h *HiveKVStoreReaderOptimistic) Set(key kvstore.Key, value kvstore.Value) error {
@@ -71,14 +66,10 @@ func (h *HiveKVStoreReaderOptimistic) Set(key kvstore.Key, value kvstore.Value) 
 }
 
 func (h *HiveKVStoreReaderOptimistic) Has(key kvstore.Key) (bool, error) {
-	if !h.baseline.IsValid() {
-		return false, coreutil.ErrorStateInvalidated
-	}
-	ret, err := h.db.Has(key)
-	if !h.baseline.IsValid() {
-		return false, coreutil.ErrorStateInvalidated
-	}
-	return ret, err
+	h.mustValidState()
+	defer h.mustValidState()
+
+	return h.db.Has(key)
 }
 
 func (h *HiveKVStoreReaderOptimistic) Delete(key kvstore.Key) error {
