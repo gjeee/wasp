@@ -85,6 +85,10 @@ variable "wasp_config" {
   "wal": {
     "directory": "wal",
     "enabled": true
+  },
+  "debug": {
+    "rawblocksEnabled": true,
+    "rawblocksDirectory": "{{ env "NOMAD_TASK_DIR" }}/blocks"
   }
 }
 EOH
