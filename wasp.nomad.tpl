@@ -115,7 +115,7 @@ job "isc-${workspace}" {
       sticky  = true
     }
 
-    count = 0
+    count = 5
 
     network {
       mode = "host"
@@ -135,6 +135,9 @@ job "isc-${workspace}" {
       port "metrics" {
         host_network = "private"
       }
+      port "profiling" {
+        host_network = "private"
+      }
     }
 
     task "wasp" {
@@ -150,6 +153,7 @@ job "isc-${workspace}" {
           "nanomsg",
           "peering",
           "metrics",
+          "profiling"
         ]
 
         labels = {
@@ -208,19 +212,19 @@ job "isc-${workspace}" {
       }
 
       resources {
-        memory = 3000
-        cpu    = 2000
+        memory = 4000
+        cpu    = 3000
       }
     }
   }
 
   group "access" {
     ephemeral_disk {
-      migrate = false
-      sticky  = false
+      migrate = true
+      sticky  = true
     }
 
-    count = 6
+    count = 1
 
     network {
       mode = "host"
@@ -255,10 +259,18 @@ job "isc-${workspace}" {
       config {
         network_mode = "host"
         image        = "${artifact.image}:${artifact.tag}"
-        command      = "wasp"
+        command      = "/usr/bin/dlv"
         entrypoint   = [""]
         args = [
-          "-c=/local/config.json",
+          "--listen=:40000", 
+          "--headless=true", 
+          "--api-version=2", 
+          "--accept-multiclient", 
+          "exec", 
+          "/usr/bin/wasp", 
+          "--", 
+          "-c", 
+          "/local/config.json",
         ]
         ports = [
           "dashboard",
@@ -266,6 +278,7 @@ job "isc-${workspace}" {
           "nanomsg",
           "peering",
           "metrics",
+          "profiling",
           "dlv"
         ]
 
