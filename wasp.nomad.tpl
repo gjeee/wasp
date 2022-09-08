@@ -216,8 +216,8 @@ job "isc-${workspace}" {
 
   group "access" {
     ephemeral_disk {
-      migrate = true
-      sticky  = true
+      migrate = false
+      sticky  = false
     }
 
     count = 6
@@ -243,14 +243,14 @@ job "isc-${workspace}" {
       port "profiling" {
         host_network = "private"
       }
+      port "dlv" {
+        static = 40000
+        to = 40000
+      }
     }
 
     task "wasp" {
       driver = "docker"
-
-      env {
-        PPROF_ADDR = "$${NOMAD_PORT_pprof}"
-      }
 
       config {
         network_mode = "host"
@@ -266,6 +266,7 @@ job "isc-${workspace}" {
           "nanomsg",
           "peering",
           "metrics",
+          "dlv"
         ]
 
 
@@ -317,6 +318,14 @@ job "isc-${workspace}" {
         tags = ["wasp", "metrics"]
         port = "metrics"
       }
+      service {
+        tags = ["wasp", "profiling"]
+        port = "profiling"
+      }
+      service {
+        tags = ["wasp", "dlv"]
+        port = "dlv"
+      }
 
       template {
         data        = var.wasp_config
@@ -325,8 +334,8 @@ job "isc-${workspace}" {
       }
 
       resources {
-        memory = 2000
-        cpu    = 6000
+        memory = 4000
+        cpu    = 3000
       }
     }
   }

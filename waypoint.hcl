@@ -29,14 +29,14 @@ app "wasp-evm" {
             dockerfile = "./Dockerfile.dlv"
             build_args = {
                 BUILD_TAGS = "rocksdb,builtin_static"
-                BUILD_LD_FLAGS = "-X github.com/iotaledger/wasp/packages/wasp.VersionHash=${gitrefhash()}"
+                BUILD_LD_FLAGS = "-X github.com/iotaledger/wasp/packages/wasp.VersionHash=${gitrefpretty()}"
             }
         }
 
         registry {
             use "docker" {
                 image = "ghcr.io/luke-thorne/wasp"
-                tag = gitrefhash()
+                tag = gitrefpretty()
                 encoded_auth = base64encode(jsonencode(var.ghcr))
             }
         }
