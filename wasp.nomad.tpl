@@ -73,7 +73,7 @@ variable "wasp_config" {
 		"netid": "{{ env "NOMAD_ADDR_peering" }}"
 	},
   "profiling":{
-    "enabled": true,
+    "enabled": false,
     "bindAddress": "{{ env "NOMAD_ADDR_profiling" }}"
   },
   "l1": {
