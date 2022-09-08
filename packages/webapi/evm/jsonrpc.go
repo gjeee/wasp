@@ -7,6 +7,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/iotaledger/hive.go/logger"
 	iotago "github.com/iotaledger/iota.go/v3"
 	"github.com/iotaledger/wasp/packages/chains"
 	"github.com/iotaledger/wasp/packages/cryptolib"
@@ -27,6 +28,7 @@ type jsonRPCService struct {
 	nodePubKey        func() *cryptolib.PublicKey
 	chainServers      map[isc.ChainID]*chainServer
 	chainServersMutex sync.Mutex
+	log               *logger.Logger
 }
 
 type chainServer struct {
@@ -34,11 +36,12 @@ type chainServer struct {
 	rpc     *rpc.Server
 }
 
-func AddEndpoints(server echoswagger.ApiGroup, allChains chains.Provider, nodePubKey func() *cryptolib.PublicKey) {
+func AddEndpoints(server echoswagger.ApiGroup, allChains chains.Provider, nodePubKey func() *cryptolib.PublicKey, log *logger.Logger) {
 	j := &jsonRPCService{
 		chains:       allChains,
 		nodePubKey:   nodePubKey,
 		chainServers: make(map[isc.ChainID]*chainServer),
+		log:          log,
 	}
 	server.EchoGroup().Any(routes.EVMJSONRPC(":chainID"), j.handleJSONRPC)
 
@@ -90,6 +93,10 @@ func (j *jsonRPCService) getChainServer(c echo.Context) (*chainServer, error) {
 				jsonrpc.NewAccountManager(nil),
 			),
 		}
+	}
+
+	if j.chainServers[*chainID].backend.chain == nil {
+		j.log.Panic("XXX - chain is nil for chainID: %v", chainID.String())
 	}
 
 	return j.chainServers[*chainID], nil

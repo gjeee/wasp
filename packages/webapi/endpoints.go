@@ -49,7 +49,7 @@ func Init(
 	info.AddEndpoints(pub, network)
 	reqstatus.AddEndpoints(pub, chainsProvider.ChainProvider())
 	state.AddEndpoints(pub, chainsProvider)
-	evm.AddEndpoints(pub, chainsProvider, network.Self().PubKey)
+	evm.AddEndpoints(pub, chainsProvider, network.Self().PubKey, log)
 	request.AddEndpoints(
 		pub,
 		chainsProvider.ChainProvider(),
