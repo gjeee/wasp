@@ -135,10 +135,6 @@ job "isc-${workspace}" {
       port "metrics" {
         host_network = "private"
       }
-      port "pprof" {
-        host_network = "private"
-        to = 6060
-      }
     }
 
     task "wasp" {
@@ -154,7 +150,6 @@ job "isc-${workspace}" {
           "nanomsg",
           "peering",
           "metrics",
-          "pprof",
         ]
 
         labels = {
@@ -225,7 +220,7 @@ job "isc-${workspace}" {
       sticky  = true
     }
 
-    count = 1
+    count = 6
 
     network {
       mode = "host"
@@ -247,10 +242,6 @@ job "isc-${workspace}" {
       }
       port "profiling" {
         host_network = "private"
-      }
-      port "pprof" {
-        host_network = "private"
-        static = 6060
       }
     }
 
@@ -275,7 +266,6 @@ job "isc-${workspace}" {
           "nanomsg",
           "peering",
           "metrics",
-          "pprof",
         ]
 
 
@@ -327,10 +317,6 @@ job "isc-${workspace}" {
         tags = ["wasp", "metrics"]
         port = "metrics"
       }
-      service {
-        tags = ["wasp", "pprof"]
-        port = "pprof"
-      }
 
       template {
         data        = var.wasp_config
@@ -339,7 +325,7 @@ job "isc-${workspace}" {
       }
 
       resources {
-        memory = 8000
+        memory = 2000
         cpu    = 6000
       }
     }

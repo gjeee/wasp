@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 ARG GOLANG_IMAGE_TAG=1.18-bullseye
 
 # Build stage
@@ -10,7 +11,12 @@ WORKDIR /wasp
 
 # Make sure that modules only get pulled when the module file has changed
 COPY go.mod go.sum ./
-RUN go mod download
+
+# Create or reuse cache folders to make reoccouring builds faster
+RUN --mount=type=cache,target=/root/.cache/go-build \
+  --mount=type=cache,target=/root/go/pkg/mod \
+  go mod download
+
 RUN go mod verify
 
 # Project build stage
