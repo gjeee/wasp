@@ -96,10 +96,8 @@ func (j *jsonRPCService) getChainServer(c echo.Context) (*chainServer, error) {
 	}
 
 	if j.chainServers[*chainID].backend.chain == nil {
-		j.log.Panic("XXX - chain is nil for chainID: %v", chainID.String())
 		chain := j.chains().Get(chainID)
-		fmt.Printf("New Chain Pointer: %v %p", chain.ID(), &chain)
-		panic("PANIC: Chain pointer gone!")
+		j.log.Panic("XXX - chain is nil for chainID: %v, new pointer %p", chainID.String(), &chain)
 	}
 
 	return j.chainServers[*chainID], nil
