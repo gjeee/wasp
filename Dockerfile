@@ -6,7 +6,7 @@ FROM golang:${GOLANG_IMAGE_TAG} AS build
 
 ARG BUILD_TAGS="rocksdb,builtin_static"
 ARG BUILD_LD_FLAGS=""
-ARG BUILD_TARGET="./..."
+ARG BUILD_TARGET="./"
 
 WORKDIR /wasp
 
@@ -17,12 +17,12 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
   --mount=type=cache,target=/root/go/pkg/mod \
   go mod download
 
-RUN go mod verify
-
 # Project build stage
 COPY . .
 
-RUN go build -o . -tags=${BUILD_TAGS} -ldflags="${BUILD_LD_FLAGS}" ${BUILD_TARGET}
+RUN --mount=type=cache,target=/root/.cache/go-build \
+  --mount=type=cache,target=/root/go/pkg/mod \
+  go build -o . -tags=${BUILD_TAGS} -ldflags="${BUILD_LD_FLAGS}" ${BUILD_TARGET}
 
 # Wasp build
 FROM gcr.io/distroless/cc

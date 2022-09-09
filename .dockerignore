@@ -10,7 +10,9 @@
 *.md
 *.png
 *.toml
-contracts/wasm/target
+*.tpl
+*.hcl
+contracts/wasm
 Dockerfile
 docOps/
 documentation
@@ -30,4 +32,4 @@ wasp
 wasp-cli
 wasp-cluster
 waspdb
-waspdb/
+
