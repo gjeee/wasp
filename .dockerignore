@@ -22,11 +22,7 @@ packages/snapshot
 packges/vm/wasmlib
 schema
 snapshot
-tools/cluster
-tools/devnet
-tools/evm_deposit_frontend
-tools/evm-l2-withdraw
-tools/snap-cli
+tools
 wal
 wasp
 wasp-cli

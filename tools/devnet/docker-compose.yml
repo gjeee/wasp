@@ -13,7 +13,7 @@ services:
   wasp:
     build:
       context: ../../
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.noncached
     container_name: wasp
     depends_on:
       - hornet-nest
